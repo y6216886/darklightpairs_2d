@@ -67,18 +67,50 @@ def generate_new_csv(df):
     print(eyeId)
 
 
-def final_label_table(odrange, osrange, eyeid, slices=18):
+def final_label_table(odrange, osrange, eyeid, slices, df):
     print("start", odrange)
     for i in odrange:
         temp = slices*i/12
         if temp-int(temp) ==0:
             print("index", int(temp))
+            df[eyeid+"-"+str(int(temp)), ]   ####over write specific col
         else:
             print("index" , int(temp))
             if int(temp)  < 17:
                 print("index", int(temp)+1 )
     return
 
+def writeToCsv(eyeId_list, slices):
+    eyeId = []
+    od_left = []
+    od_right = []
+    os_left = []
+    os_right  =[]
+    for id in eyeId_list:
+        for index in range(slices):
+            eyeId.append(id+"-"+str(index))
+            od_left.append(0)
+            od_right.append(0)
+            os_left.append(0)
+            os_right.append(0)
+    dicts = {"eyeId":eyeId, "od_left":od_left, "od_right":od_right, "os_right":os_right, "os_left":os_left}
+    dict_df = pd.DataFrame(dicts)
+    dict_df.to_csv("E:/code/darklightpairs_2d-master/eyeId_label.csv")
+
+    return 0
+
+def overWriteCsv(csvpath,df):
+    target_df = pd.read_csv(csvpath, index_col='eyeId')   ##### the final label csv File
+    eyeId_list = readSpecificCol(label_dir)   #### unique eyeId
+    for id in eyeId_list:
+        print(id)
+        strings_od = df.loc[id, "Osclock"]
+        strings_os = df.loc[id, "Odclock"]
+        ranges_od = reallabel(strings_od, 18)
+        ranges_os = reallabel(strings_os, 18)
+        print("od range", ranges_od)
+        print("os range", ranges_os)
+        final_label_table(ranges_od,ranges_os,id, target_df)
 
 if __name__ == '__main__':
     label_dir = "E:/code/darklightpairs_2d-master/brightVsDarkLabels_modified.csv"
@@ -90,13 +122,15 @@ if __name__ == '__main__':
     # generate_new_csv(df)
 
     eyeId_list = readSpecificCol(label_dir)
-    for id in eyeId_list:
-        print(id)
-        strings_od = df.loc[id, "Osclock"]
-        strings_os = df.loc[id, "Odclock"]
-        ranges_od = reallabel(strings_od, 18)
-        ranges_os = reallabel(strings_os, 18)
-        print("od range", ranges_od)
-        print("os range", ranges_os)
-        final_label_table(ranges_od,ranges_os,id)
+    # for id in eyeId_list:
+    #     print(id)
+    #     strings_od = df.loc[id, "Osclock"]
+    #     strings_os = df.loc[id, "Odclock"]
+    #     ranges_od = reallabel(strings_od, 18)
+    #     ranges_os = reallabel(strings_os, 18)
+    #     print("od range", ranges_od)
+    #     print("os range", ranges_os)
+    #     final_label_table(ranges_od,ranges_os,id)
+
+    # writeToCsv(eyeId_list, 18)
 
